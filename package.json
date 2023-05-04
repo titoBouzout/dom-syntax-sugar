@@ -1,8 +1,20 @@
 {
-  "name": "babel-plugin-solid-syntax-sugar",
-  "description": "Syntax Sugar For Solid JSX Elements",
-  "version": "0.0.2",
-  "author": "Tito Bouzout",
-  "main": "index.js",
-  "type": "module"
+	"name": "babel-plugin-solid-syntax-sugar",
+	"description": "Syntax Sugar For Solid JSX Elements",
+	"version": "0.0.2",
+	"author": "Tito Bouzout",
+	"main": "index.js",
+	"type": "module",
+	"prettier": {
+		"printWidth": 70,
+		"useTabs": true,
+		"semi": false,
+		"singleQuote": true,
+		"jsxSingleQuote": false,
+		"trailingComma": "all",
+		"bracketSpacing": true,
+		"arrowParens": "avoid",
+		"quoteProps": "preserve",
+		"proseWrap": "never"
+	}
 }
