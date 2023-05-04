@@ -47,11 +47,9 @@ export default function (api) {
 
 										// create the function template
 										const template = parse(
-											`item => {
-											onMount(()=> (
-												${getUnwrappedCode(node)}
-											)(item))
-										}`,
+											`item => { onMount(()=> ( ${getUnwrappedCode(
+												node,
+											)} )(item)) }`,
 										)
 
 										// replace the expression
