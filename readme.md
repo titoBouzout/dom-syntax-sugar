@@ -38,15 +38,15 @@ becomes
 ### `onMount`
 
 ```jsx
-<div onMount={(item) => console.log(item, "mounted!")} />
+<div onMount={item => console.log(item, 'mounted!')} />
 ```
 
 becomes
 
 ```jsx
 <div
-	ref={(item) => {
-		onMount(() => ((item) => console.log(item, "mounted!"))(item));
+	ref={item => {
+		onMount(() => (item => console.log(item, 'mounted!'))(item))
 	}}
 />
 ```
@@ -54,3 +54,23 @@ becomes
 #### Bugs:
 
 - It doesn't add the `onMount` import
+
+### `onUnmount`
+
+```jsx
+<div onUnmount={item => console.log(item, 'unmounted!')} />
+```
+
+becomes
+
+```jsx
+<div
+	ref={item => {
+		onCleanup(() => (item => console.log(item, 'unmounted!'))(item))
+	}}
+/>
+```
+
+#### Bugs:
+
+- It doesn't add the `onCleanup` import to the file

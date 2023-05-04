@@ -65,6 +65,33 @@ export default function (api) {
 										)
 										break
 									}
+									// onUnmount={...}
+									case 'onUnmount': {
+										// syntax sugar node should be removed
+										toRemove.push(node)
+
+										// create the function template
+										const template = parse(
+											`item => {
+ 												onCleanup(()=> (
+													${getUnwrappedCode(node)}
+												)(item))
+											}`,
+										)
+
+										// replace the expression
+										node.value.expression =
+											template.program.body[0].expression
+
+										// add the new ref attribute
+										path.node.attributes.push(
+											t.jSXAttribute(
+												t.jSXIdentifier('ref'),
+												node.value,
+											),
+										)
+										break
+									}
 								}
 							}
 						}
