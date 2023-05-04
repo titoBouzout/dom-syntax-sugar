@@ -2,7 +2,7 @@
 
 Syntax sugar for SolidJS JSX. See https://www.solidjs.com/
 
-This is an exploratory and experimental babel plugin to evaluate adding syntax sugar to SolidJS projects.
+Note: This is an exploratory and experimental babel plugin to evaluate adding syntax sugar to SolidJS projects. It does stuff by hacking around the AST instead of doing it the proper way.
 
 ## Install
 
@@ -38,15 +38,15 @@ becomes
 ### `onMount`
 
 ```jsx
-<div onMount={item => console.log(item, 'mounted!')} />
+<div onMount={(item) => console.log(item, "mounted!")} />
 ```
 
 becomes
 
 ```jsx
 <div
-	ref={item => {
-		onMount(() => (item => console.log(item, 'mounted!'))(item))
+	ref={(item) => {
+		onMount(() => ((item) => console.log(item, "mounted!"))(item));
 	}}
 />
 ```
