@@ -72,7 +72,7 @@ becomes
 Runs the function on a `createEffect`
 
 ```jsx
-<div onEffect={item => console.log(item, 'unmounted!')} />
+<div onEffect={item => console.log(item, 'effect!')} />
 ```
 
 becomes
@@ -95,7 +95,9 @@ becomes
 Runs the function on a `createEffect` inside an `onMount`
 
 ```jsx
-<div onMountEffect={item => console.log(item, 'unmounted!')} />
+<div
+	onMountEffect={item => console.log(item, 'effect inside mount!')}
+/>
 ```
 
 becomes
@@ -103,7 +105,7 @@ becomes
 ```jsx
 <div
 	ref={item => {
-		const fn = item => console.log(item, 'effect!')
+		const fn = item => console.log(item, 'effect inside mount!')
 		onMount(() => createEffect(() => fn(item)))
 	}}
 />
