@@ -1,7 +1,7 @@
 {
 	"name": "babel-plugin-solid-syntax-sugar",
 	"description": "Syntax Sugar For Solid JSX Elements",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"author": "Tito Bouzout",
 	"main": "index.js",
 	"type": "module",
