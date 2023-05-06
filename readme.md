@@ -50,24 +50,6 @@ Ever growing list. Diabetes.
 }
 ```
 
-## Plugins for the Plugin
-
-You can bring your own sugar. Link to your definitions on the plugin configuration. Take a look to the folder `plugins` of this repo for inspiration.
-
-`__VALUE__` refers to the content of the attribute. `__NAME__` refers to the name when using it as `namespace`
-
-```json
-"babel": {
-	"plugins": [
-		["babel-plugin-solid-syntax-sugar", {
-			"attributes": "path/to/your/attributes.js",
-			"namespace": "path/to/your/namespace.js"
-		}]
-	],
-	"presets": ["solid"]
-}
-```
-
 ## Attribute
 
 | attribute | description |
@@ -89,6 +71,24 @@ On which `___` is a name provided by the user. Example for `height` would be `<d
 | `onMountEffect:___` | binds and sets the function in `element` accesible by `element.___`, pass it to `createEffect` inside an `onMount` |
 | `signal:___` | creates a signal on `element.signal.___`, that could be used as a getter and setter. Example to set: `element.signal.height = 10`. If a function is passed as the initial value, it will execute the function with `element` as argument. It will do it on `ref` and then again on `onMount` |
 | `once:___` | `once:class={styles.name}` will become `class={/* @once */ styles.name}` |
+
+## Plugins for the Plugin
+
+You can bring your own sugar. Link to your definitions on the plugin configuration. Take a look to the folder `plugins` of this repo for inspiration.
+
+```json
+"babel": {
+	"plugins": [
+		["babel-plugin-solid-syntax-sugar", {
+			"attributes": "path/to/your/attributes.js",
+			"namespace": "path/to/your/namespace.js"
+		}]
+	],
+	"presets": ["solid"]
+}
+```
+
+`__VALUE__` refers to the content of the attribute. `__NAME__` refers to the name when using it as `namespace`
 
 ## Bugs
 
