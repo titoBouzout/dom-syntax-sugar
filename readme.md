@@ -101,3 +101,4 @@ You can bring your own sugar. Link to your definitions on the plugin configurati
 - fix the auto imports
 - allow multiple passes over the same attribute?
 - maybe add some priority in case order matters
+- add support for attributes without values (to be added by the plugins)
