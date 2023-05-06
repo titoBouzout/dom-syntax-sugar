@@ -9,6 +9,12 @@ export default [
 
 				onMount(v)
 			}`,
+		imports: [
+			{
+				name: 'onMount',
+				source: 'solid-js',
+			},
+		],
 	},
 	{
 		named: 'onCleanup',
@@ -20,6 +26,12 @@ export default [
 
 				onCleanup(v)
 			}`,
+		imports: [
+			{
+				name: 'onCleanup',
+				source: 'solid-js',
+			},
+		],
 	},
 	{
 		named: 'onEffect',
@@ -31,6 +43,12 @@ export default [
 
 				createEffect(v)
 			}`,
+		imports: [
+			{
+				name: 'createEffect',
+				source: 'solid-js',
+			},
+		],
 	},
 	{
 		named: 'onMountEffect',
@@ -44,5 +62,15 @@ export default [
 					createEffect(v)
 				)
 			}`,
+		imports: [
+			{
+				name: 'onMount',
+				source: 'solid-js',
+			},
+			{
+				name: 'createEffect',
+				source: 'solid-js',
+			},
+		],
 	},
 ]

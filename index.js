@@ -1,10 +1,13 @@
 import generate from '@babel/generator'
+import template from '@babel/template'
 
-const toCodeString =
-	'default' in generate ? generate.default : generate
+// something crazy is happening on this file that everything is returning .default
+
+const _generate = 'default' in generate ? generate.default : generate
+const _template = 'default' in template ? template.default : template
 
 function getUnwrappedValue(node) {
-	const code = toCodeString(node.value).code
+	const code = _generate(node.value).code
 
 	return /^\s*{/.test(code)
 		? code.replace(/^\s*{/, '').replace(/}\s*$/, '')
@@ -75,6 +78,17 @@ function makeIndex(plugins, index = {}) {
 	}
 	return index
 }
+
+let body
+let imports
+
+function addImport(name, source) {
+	if (!imports[name]) {
+		imports[name] = true
+		body.unshift(_template.ast(`import {${name}} from "${source}"`))
+	}
+}
+
 export default async function (api, options) {
 	t = api.types
 	parse = api.parse
@@ -102,6 +116,20 @@ export default async function (api, options) {
 
 	return {
 		visitor: {
+			Program(path) {
+				body = path.node.body
+				imports = []
+			},
+			ImportDeclaration(path) {
+				path.traverse({
+					Identifier(path) {
+						if (path.key === 'local') {
+							imports[path.node.name] = true
+						}
+					},
+				})
+			},
+
 			JSXElement(path, state) {
 				path.traverse({
 					JSXOpeningElement(path, state) {
@@ -139,6 +167,11 @@ export default async function (api, options) {
 											node.name.name.name,
 											node,
 										)
+									}
+									if (plugin.imports) {
+										for (const imported of plugin.imports) {
+											addImport(imported.name, imported.source)
+										}
 									}
 								}
 							}

@@ -92,13 +92,11 @@ You can bring your own sugar. Link to your definitions on the plugin configurati
 
 ## Bugs
 
-- It doesnt auto import `onMount/onCleanup/createEffect/createSignal`.
 - regular functions are bind to the element but `this` doesnt work due to a dom-expressions bug
 - replacement `code` requires semicolons, as whitespace is removed to try to fix line numbers
 
 ## TODO
 
-- fix the auto imports
 - allow multiple passes over the same attribute?
 - maybe add some priority in case order matters
 - add support for attributes without values (to be added by the plugins)

@@ -21,6 +21,12 @@ export default [
 				item["__NAME__"] = v;
 				createEffect(item["__NAME__"])
 			}`,
+		imports: [
+			{
+				name: 'createEffect',
+				source: 'solid-js',
+			},
+		],
 	},
 	{
 		named: 'onMount',
@@ -33,6 +39,12 @@ export default [
 				item["__NAME__"] =  v;
 				onMount(item["__NAME__"])
 			}`,
+		imports: [
+			{
+				name: 'onMount',
+				source: 'solid-js',
+			},
+		],
 	},
 	{
 		named: 'onMountEffect',
@@ -47,6 +59,16 @@ export default [
 						createEffect(item["__NAME__"])
 					)
 			}`,
+		imports: [
+			{
+				name: 'onMount',
+				source: 'solid-js',
+			},
+			{
+				name: 'createEffect',
+				source: 'solid-js',
+			},
+		],
 	},
 	{
 		named: 'signal',
@@ -67,6 +89,16 @@ export default [
 				if(isFunction)
 					onMount(() => item.signal["__NAME__"] = v(item))
 			}`,
+		imports: [
+			{
+				name: 'onMount',
+				source: 'solid-js',
+			},
+			{
+				name: 'createSignal',
+				source: 'solid-js',
+			},
+		],
 	},
 	{
 		named: 'once',
