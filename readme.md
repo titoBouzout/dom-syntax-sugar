@@ -12,7 +12,7 @@ Ever growing list. Diabetes.
 <div
 	// mounting
 	onMount={element => console.log(element, 'div mounted!')}
-	onUnmount={element => console.log(element, 'div unmounted!')}
+	onCleanup={element => console.log(element, 'div unmounted!')}
 	// effects
 	onEffect={element => console.log(element, 'like createEffect!')}
 	onMountEffect={element =>
@@ -55,7 +55,7 @@ Ever growing list. Diabetes.
 | attribute | description |
 | --- | --- |
 | `onMount` | binds and runs the function with the `element` as argument on `onMount` |
-| `onUnmount` | binds and runs the function with the `element` as argument on `onCleanup` |
+| `onCleanup` | binds and runs the function with the `element` as argument on `onCleanup` |
 | `onEffect` | binds and runs the function with the `element` as argument on `createEffect` |
 | `onMountEffect` | binds and runs the function with the `element` as argument on `createEffect` inside an `onMount` |
 

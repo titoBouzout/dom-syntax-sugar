@@ -11,7 +11,7 @@ export default [
 			}`,
 	},
 	{
-		named: 'onUnmount',
+		named: 'onCleanup',
 		replacement: 'ref',
 		code: `
 			item => {
