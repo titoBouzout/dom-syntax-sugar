@@ -17,6 +17,8 @@ export default function (api) {
 					JSXOpeningElement(path, state) {
 						let toRemove = []
 						for (let node of path.node.attributes) {
+							if (!node.name || !node.name.name) continue
+
 							if (node.name.namespace) {
 								switch (node.name.namespace.name) {
 									case 'once': {
