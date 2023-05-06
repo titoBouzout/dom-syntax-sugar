@@ -1,318 +1,149 @@
 import generate from '@babel/generator'
 
+const toCodeString =
+	'default' in generate ? generate.default : generate
+
 function getUnwrappedValue(node) {
-	const code = generate.default(node.value).code
+	const code = toCodeString(node.value).code
 
 	return /^\s*{/.test(code)
 		? code.replace(/^\s*{/, '').replace(/}\s*$/, '')
 		: code
 }
-export default function (api) {
-	const t = api.types
-	const parse = api.parse
+
+function fixLineNumbers(lineNumber, object) {
+	for (let id in object) {
+		if (typeof object[id] === 'object' && object[id] !== null) {
+			fixLineNumbers(lineNumber, object[id])
+		} else if (id === 'line') {
+			object[id] = lineNumber + object[id]
+		}
+	}
+}
+
+let parse
+let t
+function replaceAttribute(path, attr, code, name, node) {
+	const template = parse(
+		code
+			.replace(/\s/g, ' ')
+			.replace(/__NAME__/g, name)
+			.replace(/__VALUE__/g, getUnwrappedValue(node)),
+	)
+
+	const lineNumber = node.value.expression.loc.start.line - 1
+
+	node.value.expression = template.program.body[0].expression
+
+	fixLineNumbers(lineNumber, node.value.expression)
+
+	addAttribute(path, attr, node.value)
+
+	removeAttribute(path, node)
+}
+
+function addAttribute(path, attr, value) {
+	path.node.attributes.push(
+		t.jSXAttribute(t.jSXIdentifier(attr), value),
+	)
+}
+
+let toRemove = []
+function removeAttribute(path, node) {
+	toRemove.push([path, node])
+}
+function removeAttributes() {
+	toRemove.forEach(item => {
+		let index = item[0].node.attributes.indexOf(item[1])
+		if (index !== -1) item[0].node.attributes.splice(index, 1)
+	})
+	toRemove = []
+}
+
+// something crazy is happening on this file that everything is returning .default
+async function importPlugin(url) {
+	const plugin = await import(url)
+	return 'default' in plugin ? plugin.default : plugin
+}
+
+function makeIndex(plugins, index = {}) {
+	for (const plugin of plugins) {
+		if (!index[plugin.named]) {
+			index[plugin.named] = []
+		}
+		index[plugin.named].push(plugin)
+	}
+	return index
+}
+export default async function (api, options) {
+	t = api.types
+	parse = api.parse
+
+	const attributesPlugins = makeIndex(
+		await importPlugin('./plugins/attributes.js'),
+	)
+
+	const namespacePlugins = makeIndex(
+		await importPlugin('./plugins/namespace.js'),
+	)
+
+	if (options.attributes) {
+		makeIndex(
+			await importPlugin('../../' + options.attributes),
+			attributesPlugins,
+		)
+	}
+	if (options.namespace) {
+		makeIndex(
+			await importPlugin('../../' + options.namespace),
+			namespacePlugins,
+		)
+	}
+
 	return {
 		visitor: {
 			JSXElement(path, state) {
 				path.traverse({
 					JSXOpeningElement(path, state) {
-						let toRemove = []
 						for (let node of path.node.attributes) {
-							if (!node.name || !node.name.name) continue
+							// spread
+							if (!node.name) continue
 
-							if (node.name.namespace) {
-								switch (node.name.namespace.name) {
-									case 'once': {
-										// syntax sugar node should be removed
-										toRemove.push(node)
+							let name
+							let plugins
 
-										// add the leading comment
-										t.addComment(
-											node.value.expression,
-											'leading',
-											'@once',
-										)
-
-										// add it as a new attribute
-										path.node.attributes.push(
-											t.jSXAttribute(
-												t.jSXIdentifier(node.name.name.name),
-												node.value,
-											),
-										)
-										break
-									}
-									case 'this': {
-										// syntax sugar node should be removed
-										toRemove.push(node)
-
-										// create the function template
-										const template = parse(
-											`item => {
-												item["${node.name.name.name}"] = ${getUnwrappedValue(
-												node,
-											)}.bind(item, item)
-											}`,
-										)
-
-										// replace the expression
-										node.value.expression =
-											template.program.body[0].expression
-
-										// add the new `ref` attribute
-										path.node.attributes.push(
-											t.jSXAttribute(
-												t.jSXIdentifier('ref'),
-												node.value,
-											),
-										)
-										break
-									}
-									case 'onEffect': {
-										// syntax sugar node should be removed
-										toRemove.push(node)
-
-										// create the function template
-										const template = parse(
-											`item => {
-												item["${node.name.name.name}"] = ${getUnwrappedValue(
-												node,
-											)}.bind(item, item)
-												createEffect(() =>
- 													item["${node.name.name.name}"](item)
- 												)
-											}`,
-										)
-
-										// replace the expression
-										node.value.expression =
-											template.program.body[0].expression
-
-										// add the new `ref` attribute
-										path.node.attributes.push(
-											t.jSXAttribute(
-												t.jSXIdentifier('ref'),
-												node.value,
-											),
-										)
-										break
-									}
-									case 'onMount': {
-										// syntax sugar node should be removed
-										toRemove.push(node)
-
-										// create the function template
-										const template = parse(
-											`item => {
-												item["${node.name.name.name}"] = ${getUnwrappedValue(
-												node,
-											)}.bind(item, item)
-												onMount(() =>
- 													item["${node.name.name.name}"](item)
- 												)
-											}`,
-										)
-
-										// replace the expression
-										node.value.expression =
-											template.program.body[0].expression
-
-										// add the new `ref` attribute
-										path.node.attributes.push(
-											t.jSXAttribute(
-												t.jSXIdentifier('ref'),
-												node.value,
-											),
-										)
-										break
-									}
-									case 'onMountEffect': {
-										// syntax sugar node should be removed
-										toRemove.push(node)
-
-										// create the function template
-										const template = parse(
-											`item => {
-												item["${node.name.name.name}"] = ${getUnwrappedValue(
-												node,
-											)}.bind(item, item)
- 												onMount(() =>
-													createEffect(() =>
-														item["${node.name.name.name}"](item)
-													)
- 												)
-											}`,
-										)
-
-										// replace the expression
-										node.value.expression =
-											template.program.body[0].expression
-
-										// add the new `ref` attribute
-										path.node.attributes.push(
-											t.jSXAttribute(
-												t.jSXIdentifier('ref'),
-												node.value,
-											),
-										)
-										break
-									}
-									case 'signal': {
-										// syntax sugar node should be removed
-										toRemove.push(node)
-
-										// create the function template
-										const template = parse(
-											`item => {
-												const signal = item.signal || (item.signal = {})
-												const [read, write] = createSignal(${getUnwrappedValue(node)})
-												Object.defineProperty(signal, "${node.name.name.name}", {
-													get() {
- 														return read();
-													},
-													set(newValue) {
- 														write(newValue);
-													},
-													enumerable: true,
-													configurable: true,
-												})
-											}`,
-										)
-
-										// replace the expression
-										node.value.expression =
-											template.program.body[0].expression
-
-										// add the new `ref` attribute
-										path.node.attributes.push(
-											t.jSXAttribute(
-												t.jSXIdentifier('ref'),
-												node.value,
-											),
-										)
-										break
-									}
-								}
+							if (!node.name.namespace) {
+								name = node.name.name
+								plugins = attributesPlugins
 							} else {
-								switch (node.name.name) {
-									case 'onMount': {
-										// syntax sugar node should be removed
-										toRemove.push(node)
-
-										// create the function template
-										const template = parse(
-											`item => {
-												onMount(() =>
-													(${getUnwrappedValue(node)})(item)
-												)
-											}`,
+								name = node.name.namespace.name
+								plugins = namespacePlugins
+							}
+							if (plugins[name]) {
+								for (const plugin of plugins[name]) {
+									if (typeof plugin.code === 'function') {
+										plugin.code(
+											path,
+											node,
+											t,
+											node.name.name.name,
+											node.value,
+											removeAttribute,
+											addAttribute,
 										)
-
-										// replace the expression
-										node.value.expression =
-											template.program.body[0].expression
-
-										// add the new `ref` attribute
-										path.node.attributes.push(
-											t.jSXAttribute(
-												t.jSXIdentifier('ref'),
-												node.value,
-											),
+									} else {
+										replaceAttribute(
+											path,
+											plugin.replacement,
+											plugin.code,
+											node.name.name.name,
+											node,
 										)
-										break
-									}
-
-									case 'onUnmount': {
-										// syntax sugar node should be removed
-										toRemove.push(node)
-
-										// create the function template
-										const template = parse(
-											`item => {
- 												onCleanup(() =>
- 													(${getUnwrappedValue(node)})(item)
- 												)
-											}`,
-										)
-
-										// replace the expression
-										node.value.expression =
-											template.program.body[0].expression
-
-										// add the new `ref` attribute
-										path.node.attributes.push(
-											t.jSXAttribute(
-												t.jSXIdentifier('ref'),
-												node.value,
-											),
-										)
-										break
-									}
-
-									case 'onEffect': {
-										// syntax sugar node should be removed
-										toRemove.push(node)
-
-										// create the function template
-										const template = parse(
-											`item => {
-												const fn = ${getUnwrappedValue(node)}
- 												createEffect(() =>
- 													fn(item)
- 												)
-											}`,
-										)
-
-										// replace the expression
-										node.value.expression =
-											template.program.body[0].expression
-
-										// add the new `ref` attribute
-										path.node.attributes.push(
-											t.jSXAttribute(
-												t.jSXIdentifier('ref'),
-												node.value,
-											),
-										)
-										break
-									}
-
-									case 'onMountEffect': {
-										// syntax sugar node should be removed
-										toRemove.push(node)
-
-										// create the function template
-										const template = parse(
-											`item => {
-												const fn = ${getUnwrappedValue(node)}
- 												onMount(() =>
- 													createEffect(() => fn(item))
- 												)
-											}`,
-										)
-
-										// replace the expression
-										node.value.expression =
-											template.program.body[0].expression
-
-										// add the new `ref` attribute
-										path.node.attributes.push(
-											t.jSXAttribute(
-												t.jSXIdentifier('ref'),
-												node.value,
-											),
-										)
-										break
 									}
 								}
 							}
 						}
-						// remove the syntax sugar attribute
-						toRemove.forEach(function (n) {
-							path.node.attributes.splice(
-								path.node.attributes.indexOf(n),
-								1,
-							)
-						})
+						removeAttributes()
 					},
 				})
 			},
