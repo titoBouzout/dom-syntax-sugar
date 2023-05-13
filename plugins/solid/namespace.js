@@ -1,5 +1,6 @@
 export default [
 	{
+		priority: 0,
 		named: 'this',
 		replacement: 'ref',
 		code: `
@@ -11,6 +12,7 @@ export default [
 			}`,
 	},
 	{
+		priority: 2,
 		named: 'onEffect',
 		replacement: 'ref',
 		code: `
@@ -23,12 +25,13 @@ export default [
 			}`,
 		imports: [
 			{
-				name: 'createEffect',
+				name: '{createEffect}',
 				source: 'solid-js',
 			},
 		],
 	},
 	{
+		priority: 1,
 		named: 'onMount',
 		replacement: 'ref',
 		code: `
@@ -41,12 +44,13 @@ export default [
 			}`,
 		imports: [
 			{
-				name: 'onMount',
+				name: '{onMount}',
 				source: 'solid-js',
 			},
 		],
 	},
 	{
+		priority: 1,
 		named: 'onMountEffect',
 		replacement: 'ref',
 		code: `
@@ -55,28 +59,30 @@ export default [
 				v = v.bind ? v.bind(item, item) : () => v(item);
 
 				item["__NAME__"] =  v;
-					onMount(() =>
-						createEffect(item["__NAME__"])
-					)
+				onMount(() =>
+					createEffect(item["__NAME__"])
+				)
 			}`,
 		imports: [
 			{
-				name: 'onMount',
+				name: '{onMount}',
 				source: 'solid-js',
 			},
 			{
-				name: 'createEffect',
+				name: '{createEffect}',
 				source: 'solid-js',
 			},
 		],
 	},
 	{
+		priority: 0,
 		named: 'signal',
 		replacement: 'ref',
 		code: `
 			item => {
 				let v = __VALUE__;
 				v = v.bind ? v.bind(item, item) : v;
+
 				const isFunction = typeof v === "function";
 				const signal = item.signal || (item.signal = {});
 				const [get, set] = createSignal(isFunction ? v(item) : v);
@@ -91,31 +97,24 @@ export default [
 			}`,
 		imports: [
 			{
-				name: 'onMount',
+				name: '{onMount}',
 				source: 'solid-js',
 			},
 			{
-				name: 'createSignal',
+				name: '{createSignal}',
 				source: 'solid-js',
 			},
 		],
 	},
 	{
+		priority: 0,
 		named: 'once',
-		code: function (
-			path,
-			node,
-			t,
-			name,
-			value,
-			removeAttribute,
-			addAttribute,
-		) {
+		code: function (path, node, t, name, value, removeAttribute, addAttribute) {
 			removeAttribute(path, node)
 
 			t.addComment(value.expression, 'leading', '@once')
 
-			addAttribute(path, name, value)
+			addAttribute(name, value, this.priority)
 		},
 	},
 ]

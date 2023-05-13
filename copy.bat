@@ -1,6 +1,4 @@
 
-xcopy /Y /s *.js S:\www\npm\babel-plugin-solid-syntax-sugar
-
-cd /D S:\www\npm\babel-plugin-solid-syntax-sugar
+robocopy . S:\www\npm\dom-syntax-sugar /S /XO /XF "package.json"
 
 exit

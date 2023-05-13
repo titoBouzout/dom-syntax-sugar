@@ -1,5 +1,12 @@
 import generate from '@babel/generator'
 import template from '@babel/template'
+import path from 'path'
+import fs from 'fs'
+
+import * as url from 'url'
+
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
+const __dirname_import = new URL('.', import.meta.url).href
 
 // something crazy is happening on this file that everything is returning .default
 
@@ -9,9 +16,7 @@ const _template = 'default' in template ? template.default : template
 function getUnwrappedValue(node) {
 	const code = _generate(node.value).code
 
-	return /^\s*{/.test(code)
-		? code.replace(/^\s*{/, '').replace(/}\s*$/, '')
-		: code
+	return /^\s*{/.test(code) ? code.replace(/^\s*{/, '').replace(/}\s*$/, '') : code
 }
 
 function fixLineNumbers(lineNumber, object) {
@@ -26,7 +31,7 @@ function fixLineNumbers(lineNumber, object) {
 
 let parse
 let t
-function replaceAttribute(path, attr, code, name, node) {
+function replaceAttribute(path, attr, code, name, node, priority) {
 	const template = parse(
 		code
 			.replace(/\s/g, ' ')
@@ -40,15 +45,24 @@ function replaceAttribute(path, attr, code, name, node) {
 
 	fixLineNumbers(lineNumber, node.value.expression)
 
-	addAttribute(path, attr, node.value)
+	addAttribute(attr, node.value, priority)
 
 	removeAttribute(path, node)
 }
 
-function addAttribute(path, attr, value) {
-	path.node.attributes.push(
-		t.jSXAttribute(t.jSXIdentifier(attr), value),
-	)
+let toAdd = []
+function addAttribute(attr, value, priority) {
+	toAdd.push({
+		priority: priority,
+		attribute: t.jSXAttribute(t.jSXIdentifier(attr), value),
+	})
+}
+function addAttributes(path) {
+	toAdd = toAdd.sort((a, b) => b.priority - a.priority)
+	for (const attribute of toAdd) {
+		path.node.attributes.push(attribute.attribute)
+	}
+	toAdd = []
 }
 
 let toRemove = []
@@ -63,10 +77,10 @@ function removeAttributes() {
 	toRemove = []
 }
 
-// something crazy is happening on this file that everything is returning .default
 async function importPlugin(url) {
-	const plugin = await import(url)
-	return 'default' in plugin ? plugin.default : plugin
+	const plugin = await import(url).catch(e => {})
+
+	return plugin !== undefined && 'default' in plugin ? plugin.default : plugin
 }
 
 function makeIndex(plugins, index = {}) {
@@ -83,35 +97,72 @@ let body
 let imports
 
 function addImport(name, source) {
-	if (!imports[name]) {
-		imports[name] = true
-		body.unshift(_template.ast(`import {${name}} from "${source}"`))
+	const cleanName = name.replace(/{/, '').replace(/}/, '').trim()
+	if (!imports[cleanName]) {
+		imports[cleanName] = true
+		body.unshift(_template.ast(`import ${name} from "${source}"`))
 	}
+}
+
+function fileExists(f) {
+	return fs.existsSync(f)
 }
 
 export default async function (api, options) {
 	t = api.types
 	parse = api.parse
 
-	const attributesPlugins = makeIndex(
-		await importPlugin('./plugins/attributes.js'),
-	)
+	const attributesPlugins = makeIndex([])
+	const namespacePlugins = makeIndex([])
 
-	const namespacePlugins = makeIndex(
-		await importPlugin('./plugins/namespace.js'),
-	)
+	let plugins = Object.keys(options)
 
-	if (options.attributes) {
-		makeIndex(
-			await importPlugin('../../' + options.attributes),
-			attributesPlugins,
-		)
-	}
-	if (options.namespace) {
-		makeIndex(
-			await importPlugin('../../' + options.namespace),
-			namespacePlugins,
-		)
+	let plugin
+	for (const _path of plugins) {
+		if (fileExists(__dirname + 'plugins/' + _path + '/')) {
+			// local plugin
+			plugin = await importPlugin(
+				__dirname_import + 'plugins/' + _path + '/attributes.js',
+			)
+			if (plugin) {
+				makeIndex(plugin, attributesPlugins)
+			}
+			plugin = await importPlugin(__dirname_import + 'plugins/' + _path + '/namespace.js')
+
+			if (plugin) {
+				makeIndex(plugin, namespacePlugins)
+			}
+		} else if (!fileExists('../../' + _path + '/')) {
+			// external plugin but folder doesnt exists
+			console.error(
+				'dom-syntax-sugar: cant find plugin',
+				'../../' + _path + '/',
+				'resolved as',
+				path.resolve('../../' + _path + '/'),
+			)
+		} else if (
+			!fileExists('../../' + _path + '/attributes.js') &&
+			!fileExists('../../' + _path + '/namespace.js')
+		) {
+			// external plugin but none of both exists, probably a mistake
+
+			console.error(
+				'dom-syntax-sugar: both attributes.js and namespace.js does not exist in plugin folder',
+				'../../' + _path + '/',
+				'resolved as',
+				path.resolve('../../' + _path + '/'),
+			)
+		} else {
+			plugin = await importPlugin('../../' + _path + '/attributes.js')
+			if (plugin) {
+				makeIndex(plugin, attributesPlugins)
+			}
+
+			plugin = await importPlugin('../../' + _path + '/namespace.js')
+			if (plugin) {
+				makeIndex(plugin, namespacePlugins)
+			}
+		}
 	}
 
 	return {
@@ -119,7 +170,9 @@ export default async function (api, options) {
 			Program(path) {
 				body = path.node.body
 				imports = []
+				toAdd = []
 			},
+
 			ImportDeclaration(path) {
 				path.traverse({
 					Identifier(path) {
@@ -166,6 +219,7 @@ export default async function (api, options) {
 											plugin.code,
 											node.name.name.name,
 											node,
+											plugin.priority,
 										)
 									}
 									if (plugin.imports) {
@@ -177,6 +231,7 @@ export default async function (api, options) {
 							}
 						}
 						removeAttributes()
+						addAttributes(path)
 					},
 				})
 			},

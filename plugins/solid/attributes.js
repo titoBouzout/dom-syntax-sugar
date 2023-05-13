@@ -1,5 +1,6 @@
 export default [
 	{
+		priority: 1,
 		named: 'onMount',
 		replacement: 'ref',
 		code: `
@@ -11,12 +12,13 @@ export default [
 			}`,
 		imports: [
 			{
-				name: 'onMount',
+				name: '{onMount}',
 				source: 'solid-js',
 			},
 		],
 	},
 	{
+		priority: 1,
 		named: 'onCleanup',
 		replacement: 'ref',
 		code: `
@@ -28,12 +30,13 @@ export default [
 			}`,
 		imports: [
 			{
-				name: 'onCleanup',
+				name: '{onCleanup}',
 				source: 'solid-js',
 			},
 		],
 	},
 	{
+		priority: 2,
 		named: 'onEffect',
 		replacement: 'ref',
 		code: `
@@ -45,12 +48,13 @@ export default [
 			}`,
 		imports: [
 			{
-				name: 'createEffect',
+				name: '{createEffect}',
 				source: 'solid-js',
 			},
 		],
 	},
 	{
+		priority: 1,
 		named: 'onMountEffect',
 		replacement: 'ref',
 		code: `
@@ -64,11 +68,11 @@ export default [
 			}`,
 		imports: [
 			{
-				name: 'onMount',
+				name: '{onMount}',
 				source: 'solid-js',
 			},
 			{
-				name: 'createEffect',
+				name: '{createEffect}',
 				source: 'solid-js',
 			},
 		],
