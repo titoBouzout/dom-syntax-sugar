@@ -1,7 +1,7 @@
 {
 	"name": "dom-syntax-sugar",
 	"description": "A pluggable babel plugin for adding syntax sugar to JSX.",
-	"version": "1.0.9",
+	"version": "1.0.10",
 	"author": "Tito Bouzout",
 	"main": "index.js",
 	"type": "module",
