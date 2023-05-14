@@ -1,6 +1,13 @@
 export default [
+	/*
+		priorities:
+			- property 0
+			- signal 1
+			- mount/cleanup 2
+			- effect 3
+	*/
 	{
-		priority: 1,
+		priority: 2,
 		named: 'onMount',
 		replacement: 'ref',
 		code: `
@@ -18,7 +25,7 @@ export default [
 		],
 	},
 	{
-		priority: 1,
+		priority: 2,
 		named: 'onCleanup',
 		replacement: 'ref',
 		code: `
@@ -36,7 +43,7 @@ export default [
 		],
 	},
 	{
-		priority: 2,
+		priority: 3,
 		named: 'onEffect',
 		replacement: 'ref',
 		code: `
@@ -54,7 +61,7 @@ export default [
 		],
 	},
 	{
-		priority: 1,
+		priority: 2,
 		named: 'onMountEffect',
 		replacement: 'ref',
 		code: `
