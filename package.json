@@ -10,13 +10,7 @@
 		"type": "git",
 		"url": "git+https://github.com/titoBouzout/dom-syntax-sugar.git"
 	},
-	"keywords": [
-		"DOM",
-		"Syntax Sugar",
-		"JSX",
-		"DOM Syntax Sugar",
-		"JSX Syntax Sugar"
-	],
+	"keywords": ["DOM", "Syntax Sugar", "JSX", "DOM Syntax Sugar", "JSX Syntax Sugar"],
 	"bugs": {
 		"url": "https://github.com/titoBouzout/dom-syntax-sugar/issues"
 	},
@@ -35,7 +29,7 @@
 		"proseWrap": "never",
 		"endOfLine": "lf"
 	},
-	"dependencies": {
+	"devDependencies": {
 		"@babel/core": "^7.21.8",
 		"solid-js": "^1.7.5"
 	}
