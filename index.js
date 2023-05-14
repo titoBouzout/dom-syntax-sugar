@@ -115,10 +115,9 @@ export default async function (api, options) {
 	const attributesPlugins = makeIndex([])
 	const namespacePlugins = makeIndex([])
 
-	let plugins = Object.keys(options)
-
 	let plugin
-	for (const _path of plugins) {
+	for (const _path in options) {
+		if (!options[_path]) continue
 		if (fileExists(__dirname + 'plugins/' + _path + '/')) {
 			// local plugin
 			plugin = await importPlugin(
