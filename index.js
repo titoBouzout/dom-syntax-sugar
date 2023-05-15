@@ -39,9 +39,14 @@ function replaceAttribute(path, attr, code, name, node, priority) {
 			.replace(/__VALUE__/g, getUnwrappedValue(node)),
 	)
 
-	const lineNumber = node.value.expression.loc.start.line - 1
-
-	node.value.expression = template.program.body[0].expression
+	let lineNumber
+	if (node.value && node.value.expression) {
+		lineNumber = node.value.expression.loc.start.line - 1
+		node.value.expression = template.program.body[0].expression
+	} else {
+		lineNumber = node.loc.start.line - 1
+		node.value = t.jSXExpressionContainer(template.program.body[0].expression)
+	}
 
 	fixLineNumbers(lineNumber, node.value.expression)
 
@@ -78,7 +83,9 @@ function removeAttributes() {
 }
 
 async function importPlugin(url) {
-	const plugin = await import(url).catch(e => {})
+	const plugin = await import(url).catch(e => {
+		console.log(e)
+	})
 
 	return plugin !== undefined && 'default' in plugin ? plugin.default : plugin
 }
@@ -152,12 +159,12 @@ export default async function (api, options) {
 				path.resolve(_path + '/'),
 			)
 		} else {
-			plugin = await importPlugin(_path + '/attributes.js')
+			plugin = await importPlugin('../../../' + _path + '/attributes.js')
 			if (plugin) {
 				makeIndex(plugin, attributesPlugins)
 			}
 
-			plugin = await importPlugin(_path + '/namespace.js')
+			plugin = await importPlugin('../../../' + _path + '/namespace.js')
 			if (plugin) {
 				makeIndex(plugin, namespacePlugins)
 			}
