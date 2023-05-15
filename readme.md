@@ -62,26 +62,26 @@ Ever growing list. Diabetes.
 
 ### Attribute
 
-| attribute       | description                                                                                      |
-| --------------- | ------------------------------------------------------------------------------------------------ |
-| `onMount`       | binds and runs the function with the `element` as argument on `onMount`                          |
-| `onCleanup`     | binds and runs the function with the `element` as argument on `onCleanup`                        |
-| `onEffect`      | binds and runs the function with the `element` as argument on `createEffect`                     |
-| `onMountEffect` | binds and runs the function with the `element` as argument on `createEffect` inside an `onMount` |
+| attribute       | description                                                                                      | priority |
+| --------------- | ------------------------------------------------------------------------------------------------ | -------- |
+| `onMount`       | binds and runs the function with the `element` as argument on `onMount`                          | 2        |
+| `onCleanup`     | binds and runs the function with the `element` as argument on `onCleanup`                        | 2        |
+| `onEffect`      | binds and runs the function with the `element` as argument on `createEffect`                     | 3        |
+| `onMountEffect` | binds and runs the function with the `element` as argument on `createEffect` inside an `onMount` | 2        |
 
 ### Namespace
 
 On which `___` is a name provided by the user. Example for `height` would be
 `<div signal:height={0}/>`
 
-| namespace           | description                                                                                                                                                                                                                                                                                  |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `this:___`          | binds and sets the function in `element` accessible by `element.___`                                                                                                                                                                                                                         |
-| `onEffect:___`      | binds and sets the function in `element` accessible by `element.___`, pass it to `createEffect`                                                                                                                                                                                              |
-| `onMount:___`       | binds and sets the function in `element` accessible by `element.___`, pass it to `onMount`                                                                                                                                                                                                   |
-| `onMountEffect:___` | binds and sets the function in `element` accessible by `element.___`, pass it to `createEffect` inside an `onMount`                                                                                                                                                                          |
-| `signal:___`        | creates a signal on `element.signal.___`, that could be used as a getter and setter. Example to set: `element.signal.height = 10`. If a function is passed as the initial value, it will execute the function with `element` as argument. It will do it on `ref` and then again on `onMount` |
-| `once:___`          | `once:class={styles.name}` will become `class={/* @once */ styles.name}`                                                                                                                                                                                                                     |
+| namespace           | description                                                                                                                                                                                                                                                                                  | priority |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| `this:___`          | binds and sets the function in `element` accessible by `element.___`                                                                                                                                                                                                                         | 0        |
+| `onEffect:___`      | binds and sets the function in `element` accessible by `element.___`, pass it to `createEffect`                                                                                                                                                                                              | 3        |
+| `onMount:___`       | binds and sets the function in `element` accessible by `element.___`, pass it to `onMount`                                                                                                                                                                                                   | 2        |
+| `onMountEffect:___` | binds and sets the function in `element` accessible by `element.___`, pass it to `createEffect` inside an `onMount`                                                                                                                                                                          | 2        |
+| `signal:___`        | creates a signal on `element.signal.___`, that could be used as a getter and setter. Example to set: `element.signal.height = 10`. If a function is passed as the initial value, it will execute the function with `element` as argument. It will do it on `ref` and then again on `onMount` | 1        |
+| `once:___`          | `once:class={styles.name}` will become `class={/* @once */ styles.name}`                                                                                                                                                                                                                     | 0        |
 
 ### Bugs
 
@@ -155,5 +155,4 @@ export default [
 
 - allow multiple passes over the same attribute
 - add support for attributes without values (to be added by the plugins)
-- maybe add some priority in case order matters
 - refactor!
