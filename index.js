@@ -131,33 +131,33 @@ export default async function (api, options) {
 			if (plugin) {
 				makeIndex(plugin, namespacePlugins)
 			}
-		} else if (!fileExists('../../' + _path + '/')) {
+		} else if (!fileExists(_path + '/')) {
 			// external plugin but folder doesnt exists
 			console.error(
 				'dom-syntax-sugar: cant find plugin',
-				'../../' + _path + '/',
+				_path + '/',
 				'resolved as',
-				path.resolve('../../' + _path + '/'),
+				path.resolve(_path + '/'),
 			)
 		} else if (
-			!fileExists('../../' + _path + '/attributes.js') &&
-			!fileExists('../../' + _path + '/namespace.js')
+			!fileExists(_path + '/attributes.js') &&
+			!fileExists(_path + '/namespace.js')
 		) {
 			// external plugin but none of both exists, probably a mistake
 
 			console.error(
 				'dom-syntax-sugar: both attributes.js and namespace.js does not exist in plugin folder',
-				'../../' + _path + '/',
+				_path + '/',
 				'resolved as',
-				path.resolve('../../' + _path + '/'),
+				path.resolve(_path + '/'),
 			)
 		} else {
-			plugin = await importPlugin('../../' + _path + '/attributes.js')
+			plugin = await importPlugin(_path + '/attributes.js')
 			if (plugin) {
 				makeIndex(plugin, attributesPlugins)
 			}
 
-			plugin = await importPlugin('../../' + _path + '/namespace.js')
+			plugin = await importPlugin(_path + '/namespace.js')
 			if (plugin) {
 				makeIndex(plugin, namespacePlugins)
 			}
