@@ -154,5 +154,4 @@ export default [
 ## TODO
 
 - allow multiple passes over the same attribute
-- add support for attributes without values (to be added by the plugins)
 - refactor!
