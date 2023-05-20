@@ -222,7 +222,6 @@ export default async function (api, options) {
 							}
 							if (plugins[name]) {
 								for (const plugin of plugins[name]) {
-									console.log(name)
 									if (typeof plugin.code === 'function') {
 										plugin.code(
 											path,
