@@ -83,8 +83,9 @@ function removeAttributes() {
 }
 
 async function importPlugin(url) {
+	console.log(url)
 	const plugin = await import(url).catch(e => {
-		// console.log(e)
+		//console.log(e)
 	})
 
 	return plugin !== undefined && 'default' in plugin ? plugin.default : plugin
@@ -161,6 +162,7 @@ export default async function (api, options) {
 				'../../../' + _path + '/attributes.js',
 				'../../' + _path + '/attributes.js',
 				_path + '/attributes.js',
+				'file://' + _path + '/attributes.js',
 			]) {
 				plugin = await importPlugin(pluginPath)
 				if (plugin) {
@@ -168,11 +170,11 @@ export default async function (api, options) {
 					break
 				}
 			}
-
 			for (const pluginPath of [
 				'../../../' + _path + '/namespace.js',
 				'../../' + _path + '/namespace.js',
 				_path + '/namespace.js',
+				'file://' + _path + '/namespace.js',
 			]) {
 				plugin = await importPlugin(pluginPath)
 				if (plugin) {
@@ -220,6 +222,7 @@ export default async function (api, options) {
 							}
 							if (plugins[name]) {
 								for (const plugin of plugins[name]) {
+									console.log(name)
 									if (typeof plugin.code === 'function') {
 										plugin.code(
 											path,
