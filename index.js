@@ -83,7 +83,6 @@ function removeAttributes() {
 }
 
 async function importPlugin(url) {
-	console.log(url)
 	const plugin = await import(url).catch(e => {
 		//console.log(e)
 	})
