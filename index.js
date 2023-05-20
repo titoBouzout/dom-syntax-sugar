@@ -84,7 +84,7 @@ function removeAttributes() {
 
 async function importPlugin(url) {
 	const plugin = await import(url).catch(e => {
-		console.log(e)
+		// console.log(e)
 	})
 
 	return plugin !== undefined && 'default' in plugin ? plugin.default : plugin
@@ -140,12 +140,10 @@ export default async function (api, options) {
 			}
 		} else if (!fileExists(_path + '/')) {
 			// external plugin but folder doesnt exists
-			console.error(
-				'dom-syntax-sugar: cant find plugin',
-				_path + '/',
-				'resolved as',
-				path.resolve(_path + '/'),
-			)
+			console.error('dom-syntax-sugar: cant find plugin:')
+			console.error(_path + '/')
+			console.error('resolved as')
+			console.error(path.resolve(_path + '/'))
 		} else if (
 			!fileExists(_path + '/attributes.js') &&
 			!fileExists(_path + '/namespace.js')
@@ -154,19 +152,33 @@ export default async function (api, options) {
 
 			console.error(
 				'dom-syntax-sugar: both attributes.js and namespace.js does not exist in plugin folder',
-				_path + '/',
-				'resolved as',
-				path.resolve(_path + '/'),
 			)
+			console.error(_path + '/')
+			console.error('resolved as')
+			console.error(path.resolve(_path + '/'))
 		} else {
-			plugin = await importPlugin('../../../' + _path + '/attributes.js')
-			if (plugin) {
-				makeIndex(plugin, attributesPlugins)
+			for (const pluginPath of [
+				'../../../' + _path + '/attributes.js',
+				'../../' + _path + '/attributes.js',
+				_path + '/attributes.js',
+			]) {
+				plugin = await importPlugin(pluginPath)
+				if (plugin) {
+					makeIndex(plugin, attributesPlugins)
+					break
+				}
 			}
 
-			plugin = await importPlugin('../../../' + _path + '/namespace.js')
-			if (plugin) {
-				makeIndex(plugin, namespacePlugins)
+			for (const pluginPath of [
+				'../../../' + _path + '/namespace.js',
+				'../../' + _path + '/namespace.js',
+				_path + '/namespace.js',
+			]) {
+				plugin = await importPlugin(pluginPath)
+				if (plugin) {
+					makeIndex(plugin, attributesPlugins)
+					break
+				}
 			}
 		}
 	}
