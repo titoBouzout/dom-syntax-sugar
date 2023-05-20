@@ -1,6 +1,6 @@
 {
 	"name": "dom-syntax-sugar",
-	"version": "1.0.14",
+	"version": "1.0.15",
 	"description": "A pluggable babel plugin for adding syntax sugar to JSX.",
 	"author": "Tito Bouzout",
 	"main": "index.js",
@@ -10,7 +10,13 @@
 		"type": "git",
 		"url": "git+https://github.com/titoBouzout/dom-syntax-sugar.git"
 	},
-	"keywords": ["DOM", "Syntax Sugar", "JSX", "DOM Syntax Sugar", "JSX Syntax Sugar"],
+	"keywords": [
+		"DOM",
+		"Syntax Sugar",
+		"JSX",
+		"DOM Syntax Sugar",
+		"JSX Syntax Sugar"
+	],
 	"bugs": {
 		"url": "https://github.com/titoBouzout/dom-syntax-sugar/issues"
 	},
